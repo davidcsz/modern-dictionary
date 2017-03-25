@@ -49,7 +49,10 @@ server.route({
                     {
                         'title': top.word,
                         'pretext': `_Most popular definition with ${top.thumbs_up} up-votes and ${top.thumbs_down}:_`,
-                        'text': top.definition
+                        'text': top.definition,
+                        'mrkdwn_in': [
+                            'pretext'
+                        ]
                     },
                     {
                         'title': 'Example:',
