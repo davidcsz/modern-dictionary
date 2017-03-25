@@ -21,7 +21,7 @@ server.route({
     method: 'POST',
     path: '/define',
     handler: async function (request, reply) {
-        let word = request.payload.text;
+        let word = request.query.text;
         console.log(`Definition request for: ${word}`);
 
         let definition = await fetch(`http://api.urbandictionary.com/v0/define?term=${word}`, {
@@ -29,42 +29,36 @@ server.route({
         }).then((response) => {
             return response.json();
         }).then((json) => {
-            let definition;
-            let response = json.list;
-            let highestVotes = {
-                'id': 0,
-                'votes': (response[0].thumbs_up / (response[0].thumbs_up + response[0].thumbs_down)) * 100
-            };
+            let definitions = json.list;
+            let top = definitions[0];
 
+            for (i = 0; i < definitions.length; i++) {
+                let topVotes = (top.thumbs_up / (top.thumbs_up + top.thumbs_down) * 100);
+                let currentVotes = (definitions[i].thumbs_up / (definitions[i].thumbs_up + definitions[i].thumbs_down) * 100);
 
-            for (let i = 0; i > response.length; i++) {
-                let currentVotes = (response[i].thumbs_up / (response[i].thumbs_up + response[i].thumbs_down)) * 100;
-
-                if (currentVotes > highestVotes.votes) {
-                    console.log('Replacing current high.');
-                    
-                    highestVotes.id = i;
-                    highestVotes.votes = currentVotes;
+                if (currentVotes > topVotes) {
+                    top = definitions[i];
                 }
-
-                definition = response[highestVotes.id];
-                console.log(definition);
             }
 
+            return top;
+        }).then((top) => {
             return {
                 'response_type': 'in_channel',
                 'attachments': [
                     {
-                        'title': definition.word,
-                        'pretext': `_Most popular definition with ${definition.thumbs_up} up-votes and ${definition.thumbs_down}:_`,
-                        'text': definition.definition
+                        'title': top.word,
+                        'pretext': `_Most popular definition with ${top.thumbs_up} up-votes and ${top.thumbs_down}:_`,
+                        'text': top.definition
                     },
                     {
                         'title': 'Example:',
-                        'text': definition.example
+                        'text': top.example
                     }
                 ]
             };
+        }).catch((error) => {
+            console.log(`Error: ${error}`);
         });
 
         reply(definition).code(200).type('application/json');
