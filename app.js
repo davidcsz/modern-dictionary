@@ -21,7 +21,7 @@ server.route({
     method: 'POST',
     path: '/define',
     handler: async function (request, reply) {
-        let word = request.query.text;
+        let word = request.payload.text;
         console.log(`Definition request for: ${word}`);
 
         let definition = await fetch(`http://api.urbandictionary.com/v0/define?term=${word}`, {
