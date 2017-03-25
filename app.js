@@ -41,11 +41,14 @@ server.route({
                 let currentVotes = (response[i].thumbs_up / (response[i].thumbs_up + response[i].thumbs_down)) * 100;
 
                 if (currentVotes > highestVotes.votes) {
+                    console.log('Replacing current high.');
+                    
                     highestVotes.id = i;
                     highestVotes.votes = currentVotes;
                 }
 
                 definition = response[highestVotes.id];
+                console.log(definition);
             }
 
             return {
