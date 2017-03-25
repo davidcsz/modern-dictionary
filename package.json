@@ -15,6 +15,9 @@
   "bugs": {
     "url": "https://github.com/davidcsz/modern-dictionary/issues"
   },
+  "engines": {
+    "node": ">=7.6.0"
+  },
   "homepage": "https://github.com/davidcsz/modern-dictionary#readme",
   "dependencies": {
     "hapi": "^16.1.0",
