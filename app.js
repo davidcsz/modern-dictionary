@@ -27,12 +27,44 @@ server.route({
         let definition = await fetch(`http://api.urbandictionary.com/v0/define?term=${word}`, {
             method: 'GET'
         }).then((response) => {
-            return respons.json();
-        }).then((definition) => {
-            return definition.list[0].definition;
+            return response.json();
+        }).then((json) => {
+            let definition;
+            let response = json.list;
+            let highestVotes = {
+                'id': 0,
+                'votes': (response[0].thumbs_up / (response[0].thumbs_up + response[0].thumbs_down)) * 100
+            };
+
+
+            for (let i = 0; i > response.length; i++) {
+                let currentVotes = (response[i].thumbs_up / (response[i].thumbs_up + response[i].thumbs_down)) * 100;
+
+                if (currentVotes > highestVotes.votes) {
+                    highestVotes.id = i;
+                    highestVotes.votes = currentVotes;
+                }
+
+                definition = response[highestVotes.id];
+            }
+
+            return {
+                'response_type': 'in_channel',
+                'attachments': [
+                    {
+                        'title': definition.word,
+                        'pretext': `_Most popular definition with ${definition.thumbs_up} up-votes and ${definition.thumbs_down}:_`,
+                        'text': definition.definition
+                    },
+                    {
+                        'title': 'Example:',
+                        'text': definition.example
+                    }
+                ]
+            };
         });
 
-        reply(definition).code(200);
+        reply(definition).code(200).type('application/json');
     }
 });
 
