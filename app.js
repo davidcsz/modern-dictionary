@@ -26,6 +26,7 @@ server.route({
 
         let definition = await define.urban(word);
 
+        console.log(`Sending Slack message: ${definition}`);
         reply(definition).code(200).type('application/json');
     }
 });
