@@ -48,7 +48,7 @@ server.route({
                 'attachments': [
                     {
                         'title': top.word,
-                        'pretext': `_Most popular definition with ${top.thumbs_up} up-votes and ${top.thumbs_down}:_`,
+                        'pretext': `_Most popular definition with ${top.thumbs_up} up-votes and ${top.thumbs_down} down-votes:_`,
                         'text': top.definition,
                         'mrkdwn_in': [
                             'pretext'
