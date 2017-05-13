@@ -1,5 +1,5 @@
 const hapi = require('hapi');
-const fetch = require('node-fetch');
+const define = require('./lib/define.js');
 
 const server = new hapi.Server();
 server.connection({
@@ -24,45 +24,7 @@ server.route({
         let word = request.payload.text;
         console.log(`Definition request for: ${word}`);
 
-        let definition = await fetch(`http://api.urbandictionary.com/v0/define?term=${word}`, {
-            method: 'GET'
-        }).then((response) => {
-            return response.json();
-        }).then((json) => {
-            let definitions = json.list;
-            let top = definitions[0];
-
-            for (i = 0; i < definitions.length; i++) {
-                let topVotes = (top.thumbs_up / (top.thumbs_up + top.thumbs_down) * 100);
-                let currentVotes = (definitions[i].thumbs_up / (definitions[i].thumbs_up + definitions[i].thumbs_down) * 100);
-
-                if (currentVotes > topVotes) {
-                    top = definitions[i];
-                }
-            }
-
-            return top;
-        }).then((top) => {
-            return {
-                'response_type': 'in_channel',
-                'attachments': [
-                    {
-                        'title': top.word,
-                        'pretext': `_Most popular definition with ${top.thumbs_up} up-votes and ${top.thumbs_down} down-votes:_`,
-                        'text': top.definition,
-                        'mrkdwn_in': [
-                            'pretext'
-                        ]
-                    },
-                    {
-                        'title': 'Example:',
-                        'text': top.example
-                    }
-                ]
-            };
-        }).catch((error) => {
-            console.log(`Error: ${error}`);
-        });
+        let definition = await define.urban(word);
 
         reply(definition).code(200).type('application/json');
     }
